@@ -34,14 +34,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Tab switching
 function setupUI() {
-        document.querySelectorAll('.tab').forEach(tab => {
+    document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             tab.classList.add('active');
             document.getElementById(tab.dataset.tab).classList.add('active');
-                window.engagementBooster = setupEngagementFeatures();
-}
         });
     });
 
@@ -157,6 +155,19 @@ async function processFullVideo() {
         const brandSettings = loadSettings();
         const editStyle = document.getElementById('editStyle').value;
         const videoTitle = document.getElementById('videoTitle').value;
+        
+        // Initialize engagement booster with this canvas
+        let engagementSettings = null;
+        if (window.engagementBooster) {
+            window.engagementBooster.canvas = canvas;
+            window.engagementBooster.ctx = canvas.getContext('2d');
+            engagementSettings = processVideoWithEngagement(
+                originalVideo,
+                canvas,
+                window.engagementBooster
+            );
+            console.log('✅ Engagement features loaded');
+        }
 
         updateProgress(20, 'Enhancing audio...');
 
@@ -276,6 +287,33 @@ async function processFullVideo() {
                         data[i + 2] += noise;
                     }
                     ctx.putImageData(imageData, 0, 0);
+                }
+
+                // ADD ENGAGEMENT FEATURES HERE
+                if (window.engagementBooster && engagementSettings) {
+                    // Render engagement overlays
+                    window.engagementBooster.render(
+                        originalVideo.currentTime,
+                        originalVideo.duration,
+                        Date.now()
+                    );
+                    
+                    // B-roll overlays
+                    if (engagementSettings.brollOverlays) {
+                        window.engagementBooster.renderBrollOverlay(originalVideo.currentTime, 0.7);
+                    }
+                    
+                    // Pattern interrupts every 30 seconds
+                    if (engagementSettings.patternInterrupts) {
+                        const currentSecond = Math.floor(originalVideo.currentTime);
+                        if (currentSecond % 30 === 0 && originalVideo.currentTime % 1 < 0.1) {
+                            const interruptProgress = (originalVideo.currentTime % 30) / 30;
+                            window.engagementBooster.renderPatternInterrupt(
+                                engagementSettings.interruptType,
+                                interruptProgress
+                            );
+                        }
+                    }
                 }
 
                 ctx.restore();
