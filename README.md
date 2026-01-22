@@ -9,11 +9,4 @@ AI-powered video editing platform. Upload raw content, get fully edited videos w
 -  Smart subtitle generation
 -  Brand system for consistency
 -  Multi-platform optimization
--  Lightning-fast processing
-
-## Tech Stack
-
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
-- **Backend**: Node.js, Fastify, PostgreSQL
-- **Worker**: Python, FFmpeg, Whisper, Claude
-- **Infrastructure**: Docker, Redis, RabbitMQ, S3
+-  Fast processing
