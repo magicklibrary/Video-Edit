@@ -35,11 +35,18 @@ class AudioProcessor {
             await this.initialize();
         }
 
-        // Create source from video
+        // Check if source already exists for this video element
+        if (this.sourceNode) {
+            console.log('🎙️ Audio source already connected, reusing...');
+            return this.audioContext;
+        }
+
+        // Create source from video (only once per element)
         const source = this.audioContext.createMediaElementSource(videoElement);
+        this.sourceNode = source;
         
         // Build audio processing chain
-        let currentNode = source;
+        let currentNode = this.sourceNode;
 
         // 1. High-pass filter (remove rumble/noise below 80Hz)
         const highPass = this.audioContext.createBiquadFilter();
@@ -106,8 +113,19 @@ class AudioProcessor {
     async analyzeAudio(videoElement) {
         console.log('🔍 Analyzing audio...');
         
+        // Create a separate audio context for analysis (not connected to output)
         const audioContext = new AudioContext();
-        const source = audioContext.createMediaElementSource(videoElement);
+        
+        // Clone the video for analysis to avoid connection conflicts
+        const tempVideo = document.createElement('video');
+        tempVideo.src = videoElement.src;
+        tempVideo.muted = true; // Mute the analysis video
+        
+        await new Promise(resolve => {
+            tempVideo.onloadedmetadata = resolve;
+        });
+        
+        const source = audioContext.createMediaElementSource(tempVideo);
         const analyser = audioContext.createAnalyser();
         
         analyser.fftSize = 2048;
@@ -121,15 +139,16 @@ class AudioProcessor {
         const loudSegments = [];
         let currentSilentStart = null;
 
-        const duration = videoElement.duration;
+                
+        const duration = tempVideo.duration;
         const sampleRate = 10; // samples per second
         
         for (let i = 0; i < duration * sampleRate; i++) {
             const time = i / sampleRate;
-            videoElement.currentTime = time;
+            tempVideo.currentTime = time;
             
             await new Promise(resolve => {
-                videoElement.onseeked = () => {
+                tempVideo.onseeked = () => {
                     analyser.getByteFrequencyData(dataArray);
                     
                     // Calculate average volume
@@ -162,6 +181,11 @@ class AudioProcessor {
             });
         }
 
+        // Clean up
+        tempVideo.pause();
+        source.disconnect();
+        audioContext.close();
+
         return {
             silentSegments: silentSegments.filter(s => s.duration > 0.5), // Only segments > 0.5s
             loudSegments,
@@ -173,8 +197,17 @@ class AudioProcessor {
      * Visualize audio waveform
      */
     visualizeAudio(videoElement, canvas) {
+        // Create separate context for visualization
         const audioContext = new AudioContext();
+        
+        // Check if we already have a visualization for this video
+        if (videoElement._audioVizSource) {
+            return; // Already visualizing
+        }
+        
         const source = audioContext.createMediaElementSource(videoElement);
+        videoElement._audioVizSource = source; // Mark as connected
+        
         const analyser = audioContext.createAnalyser();
         
         analyser.fftSize = 256;
