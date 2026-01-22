@@ -92,6 +92,11 @@ async function loadVideo(file) {
     const originalVideo = document.getElementById('originalVideo');
     const previewVideo = document.getElementById('previewVideo');
     
+    // Reset audio processor for new video
+    if (audioProcessor) {
+        audioProcessor.sourceNode = null;
+    }
+    
     originalVideo.src = url;
     previewVideo.src = url;
     
@@ -104,7 +109,7 @@ async function loadVideo(file) {
         document.getElementById('videoInfo').textContent = 
             `Duration: ${duration}s | Size: ${size} MB | ${originalVideo.videoWidth}x${originalVideo.videoHeight}`;
 
-        // Auto-analyze audio
+        // Auto-analyze audio (but don't connect to output yet)
         if (document.getElementById('autoAudioEnhance').checked) {
             showStatus('🎙️ Analyzing audio quality...', 'info');
             try {
@@ -113,12 +118,13 @@ async function loadVideo(file) {
                 showStatus(`✅ Found ${audioAnalysis.silentSegments.length} silent segments to trim`, 'success');
             } catch (err) {
                 console.error('Audio analysis error:', err);
+                // Don't show error - analysis is optional
             }
         }
 
         // Enable shorts generation
         document.getElementById('generateShortsBtn').disabled = false;
-    });
+    }, { once: true }); // Only run once
 }
 
 // Process full video
@@ -152,14 +158,19 @@ async function processFullVideo() {
 
         updateProgress(20, 'Enhancing audio...');
 
-        // Apply audio enhancements
+        // Apply audio enhancements (only if not already connected)
         if (document.getElementById('autoAudioEnhance').checked) {
-            await audioProcessor.enhanceAudio(originalVideo, {
-                noiseReduction: brandSettings.noiseReduction,
-                bassBoost: brandSettings.bassBoost,
-                voiceClarity: brandSettings.voiceClarity,
-                compression: brandSettings.compression
-            });
+            try {
+                await audioProcessor.enhanceAudio(originalVideo, {
+                    noiseReduction: brandSettings.noiseReduction,
+                    bassBoost: brandSettings.bassBoost,
+                    voiceClarity: brandSettings.voiceClarity,
+                    compression: brandSettings.compression
+                });
+            } catch (err) {
+                console.warn('Audio enhancement skipped:', err.message);
+                // Continue without audio enhancement
+            }
         }
 
         updateProgress(30, 'Setting up video processing...');
@@ -501,17 +512,28 @@ function setupAudioVisualization() {
     const originalCanvas = document.getElementById('audioVizOriginal');
     const previewCanvas = document.getElementById('audioVizPreview');
 
+    // Only set up once per video
     originalVideo.addEventListener('play', () => {
-        if (audioProcessor) {
-            audioProcessor.visualizeAudio(originalVideo, originalCanvas);
+        if (audioProcessor && !originalVideo._audioVizSetup) {
+            originalVideo._audioVizSetup = true;
+            try {
+                audioProcessor.visualizeAudio(originalVideo, originalCanvas);
+            } catch (err) {
+                console.warn('Audio visualization failed:', err.message);
+            }
         }
-    });
+    }, { once: true });
 
     previewVideo.addEventListener('play', () => {
-        if (audioProcessor) {
-            audioProcessor.visualizeAudio(previewVideo, previewCanvas);
+        if (audioProcessor && !previewVideo._audioVizSetup) {
+            previewVideo._audioVizSetup = true;
+            try {
+                audioProcessor.visualizeAudio(previewVideo, previewCanvas);
+            } catch (err) {
+                console.warn('Audio visualization failed:', err.message);
+            }
         }
-    });
+    }, { once: true });
 }
 
 // Utility functions
