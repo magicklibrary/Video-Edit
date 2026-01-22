@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MagickLibrary Studio - Local Video Editor</title>
+    <title>MagickLibrary AutoEdit - Viral Video Studio</title>
     <style>
         * {
             margin: 0;
@@ -13,132 +13,159 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.5);
             padding: 20px;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #6a0dad;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            background: linear-gradient(135deg, #ffd700 0%, #6a0dad 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
         }
 
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-
-        .subtitle {
-            color: #666;
+        .tabs {
+            display: flex;
+            gap: 10px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
-        .badge {
-            display: inline-block;
-            background: #4CAF50;
-            color: white;
-            padding: 5px 15px;
+        .tab {
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #6a0dad 0%, #ffd700 100%);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .upload-area {
+            border: 3px dashed #6a0dad;
             border-radius: 20px;
-            font-size: 0.8em;
-            margin-bottom: 20px;
-        }
-
-        .upload-zone {
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            padding: 60px;
+            padding: 80px;
             text-align: center;
-            background: #f8f9ff;
+            background: rgba(106, 13, 173, 0.1);
             cursor: pointer;
             transition: all 0.3s;
             margin-bottom: 30px;
         }
 
-        .upload-zone:hover {
-            background: #eef1ff;
-            border-color: #764ba2;
-        }
-
-        .upload-zone.dragover {
-            background: #dde4ff;
+        .upload-area:hover {
+            background: rgba(106, 13, 173, 0.2);
             transform: scale(1.02);
         }
 
-        .controls {
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
-        .control-group {
-            background: #f8f9ff;
-            padding: 20px;
-            border-radius: 10px;
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(106, 13, 173, 0.3);
         }
 
-        label {
-            display: block;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
+        .card h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        input[type="text"], input[type="color"], input[type="file"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            margin-bottom: 15px;
             font-size: 14px;
         }
 
-        select, input[type="range"], input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
+        textarea {
+            min-height: 100px;
+            resize: vertical;
         }
 
-        .range-value {
-            display: inline-block;
-            margin-left: 10px;
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        .process-btn {
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #6a0dad 0%, #ffd700 100%);
             border: none;
             border-radius: 10px;
-            font-size: 20px;
-            font-weight: 600;
+            color: #000;
+            font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
-            margin-bottom: 20px;
+            font-size: 16px;
+            transition: all 0.3s;
         }
 
-        .process-btn:hover {
+        .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(106, 13, 173, 0.5);
         }
 
-        .process-btn:disabled {
+        .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .preview-section {
+        .btn-large {
+            width: 100%;
+            padding: 25px;
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .preview-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-top: 30px;
+            margin: 30px 0;
         }
 
         .preview-box {
-            background: #f8f9ff;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
             padding: 20px;
-            border-radius: 10px;
+            border: 1px solid rgba(106, 13, 173, 0.3);
         }
 
         video {
@@ -147,517 +174,462 @@
             background: #000;
         }
 
+        .progress-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6a0dad 0%, #ffd700 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .asset-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .asset-item {
+            position: relative;
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid rgba(106, 13, 173, 0.3);
+            cursor: pointer;
+        }
+
+        .asset-item img, .asset-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .asset-item .remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255,0,0,0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+        }
+
+        .toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .toggle input[type="checkbox"] {
+            width: auto;
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .color-picker-item {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .status-message.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4CAF50;
+        }
+
+        .status-message.info {
+            background: rgba(33, 150, 243, 0.2);
+            border: 1px solid #2196F3;
+        }
+
+        .status-message.warning {
+            background: rgba(255, 152, 0, 0.2);
+            border: 1px solid #FF9800;
+        }
+
+        .shorts-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .short-card {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid rgba(106, 13, 173, 0.3);
+        }
+
+        .short-card video {
+            aspect-ratio: 9/16;
+            object-fit: cover;
+        }
+
         canvas {
             display: none;
         }
 
-        .timeline {
-            margin-top: 20px;
-            background: #2c3e50;
-            border-radius: 10px;
-            padding: 20px;
-            color: white;
+        .slider-container {
+            margin: 15px 0;
         }
 
-        .timeline-track {
-            height: 80px;
-            background: #34495e;
-            border-radius: 5px;
-            position: relative;
-            margin-top: 10px;
-        }
-
-        .clip {
-            position: absolute;
-            height: 100%;
-            background: #667eea;
-            border-radius: 5px;
-            cursor: move;
+        .slider-label {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 12px;
-            overflow: hidden;
-        }
-
-        .status {
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        .download-btn {
-            padding: 15px 30px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        .download-btn:hover {
-            background: #45a049;
-        }
-
-        .feature-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .feature-item {
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 8px;
+            justify-content: space-between;
+            margin-bottom: 5px;
             font-size: 14px;
         }
 
-        .feature-item.active {
-            background: #667eea;
-            color: white;
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .audio-viz {
+            height: 60px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audio-viz canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>🎬 MagickLibrary AutoEdit Studio</h1>
+        <p>100% Local AI-Powered Video Editor - Crystal Clear Audio, Auto-Shorts, Pro Quality</p>
+    </div>
+
     <div class="container">
-        <h1>🎬 MagickLibrary Studio</h1>
-        <p class="subtitle">100% Local Video Editor - No Cloud, No Costs, No APIs</p>
-        <span class="badge">✓ Runs in Your Browser | ✓ All Processing Local | ✓ Free Forever</span>
-
-        <!-- Features -->
-        <div class="feature-list">
-            <div class="feature-item active">✂️ Trim & Cut</div>
-            <div class="feature-item active">🎨 Filters & Effects</div>
-            <div class="feature-item active">🔊 Volume Control</div>
-            <div class="feature-item active">⚡ Speed Adjust</div>
-            <div class="feature-item active">🖼️ Crop & Resize</div>
-            <div class="feature-item active">📝 Text Overlays</div>
+        <div class="tabs">
+            <button class="tab active" data-tab="upload">📤 Upload & Edit</button>
+            <button class="tab" data-tab="shorts">📱 Auto-Shorts Generator</button>
+            <button class="tab" data-tab="settings">⚙️ Brand Settings</button>
+            <button class="tab" data-tab="assets">🎨 Assets Library</button>
         </div>
 
-        <!-- Upload Zone -->
-        <div class="upload-zone" id="uploadZone">
-            <div style="font-size: 60px; margin-bottom: 20px;">📁</div>
-            <h2>Drop your video here</h2>
-            <p>or click to browse</p>
-            <p style="color: #999; margin-top: 10px;">Supports: MP4, WebM, MOV</p>
-            <input type="file" id="fileInput" accept="video/*" style="display: none;">
+        <!-- UPLOAD & EDIT TAB -->
+        <div class="tab-content active" id="upload">
+            <div class="upload-area" id="uploadZone">
+                <div style="font-size: 80px;">🎥</div>
+                <h2>Drop Your Video Here</h2>
+                <p>or click to browse • Supports MP4, WebM, MOV</p>
+                <input type="file" id="videoInput" accept="video/*" style="display: none;">
+            </div>
+
+            <div id="editingInterface" style="display: none;">
+                <div class="grid">
+                    <div class="card">
+                        <h3>🤖 AI Automation Settings</h3>
+                        <div class="toggle">
+                            <input type="checkbox" id="autoAudioEnhance" checked>
+                            <label>🎙️ Crystal clear audio (denoise, EQ, compress)</label>
+                        </div>
+                        <div class="toggle">
+                            <input type="checkbox" id="autoTrim" checked>
+                            <label>✂️ Auto-trim silence & dead space</label>
+                        </div>
+                        <div class="toggle">
+                            <input type="checkbox" id="autoEnhance" checked>
+                            <label>🎨 AI color correction & enhancement</label>
+                        </div>
+                        <div class="toggle">
+                            <input type="checkbox" id="autoDynamicZoom" checked>
+                            <label>🔍 Dynamic zoom on key moments</label>
+                        </div>
+                        <div class="toggle">
+                            <input type="checkbox" id="autoTransitions" checked>
+                            <label>✨ Smart transitions between scenes</label>
+                        </div>
+                        <div class="toggle">
+                            <input type="checkbox" id="autoIntroOutro" checked>
+                            <label>🎬 Add intro/outro from assets</label>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>🎬 Video Style</h3>
+                        <label>Edit Style:</label>
+                        <select id="editStyle">
+                            <option value="mystical">Mystical Book Review</option>
+                            <option value="energetic">High Energy / Fast Cuts</option>
+                            <option value="cinematic">Cinematic / Smooth</option>
+                            <option value="minimal">Clean & Minimal</option>
+                            <option value="professional">Professional Talking Head</option>
+                        </select>
+
+                        <label>Video Title:</label>
+                        <input type="text" id="videoTitle" placeholder="e.g., 'The Dark Tower Review'">
+
+                        <label>Pacing Speed:</label>
+                        <select id="pacingSpeed">
+                            <option value="slow">Thoughtful & Slow</option>
+                            <option value="medium">Balanced</option>
+                            <option value="fast">Fast & Energetic</option>
+                            <option value="viral">Viral / TikTok Style</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="preview-grid">
+                    <div class="preview-box">
+                        <h3>Original Video</h3>
+                        <video id="originalVideo" controls></video>
+                        <p id="videoInfo" style="margin-top: 10px; opacity: 0.7;"></p>
+                        <div class="audio-viz">
+                            <canvas id="audioVizOriginal"></canvas>
+                        </div>
+                    </div>
+                    <div class="preview-box">
+                        <h3>Preview with Effects</h3>
+                        <video id="previewVideo" controls></video>
+                        <div class="audio-viz">
+                            <canvas id="audioVizPreview"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-large" id="processBtn">
+                    ✨ Auto-Process Full Video
+                </button>
+
+                <div class="progress-container" id="progressContainer">
+                    <h3>Processing...</h3>
+                    <div id="processingSteps"></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill">0%</div>
+                    </div>
+                </div>
+
+                <div class="status-message" id="statusMessage"></div>
+            </div>
         </div>
 
-        <div id="videoLoaded" style="display: none;">
-            <!-- Controls -->
-            <div class="controls">
-                <div class="control-group">
-                    <label>🎥 Output Format</label>
-                    <select id="outputFormat">
-                        <option value="webm">WebM (Best Quality)</option>
-                        <option value="mp4">MP4 (Compatible)</option>
+        <!-- AUTO-SHORTS TAB -->
+        <div class="tab-content" id="shorts">
+            <div class="card">
+                <h3>📱 Automatic Short-Form Content Generator</h3>
+                <p style="opacity: 0.8; margin-bottom: 20px;">
+                    Upload your long-form video and automatically generate viral-ready shorts for TikTok, Instagram Reels, and YouTube Shorts
+                </p>
+
+                <div class="toggle">
+                    <input type="checkbox" id="shortsAutoCaption" checked>
+                    <label>Add auto-captions (large, colorful text)</label>
+                </div>
+                <div class="toggle">
+                    <input type="checkbox" id="shortsAutoCrop" checked>
+                    <label>Auto-crop to most interesting parts</label>
+                </div>
+                <div class="toggle">
+                    <input type="checkbox" id="shortsAutoMusic">
+                    <label>Add trending background music</label>
+                </div>
+                <div class="toggle">
+                    <input type="checkbox" id="shortsAutoEffects" checked>
+                    <label>Add viral effects (zooms, shakes, emojis)</label>
+                </div>
+
+                <label>Number of Shorts to Generate:</label>
+                <input type="number" id="shortsCount" value="3" min="1" max="10">
+
+                <label>Short Duration (seconds):</label>
+                <select id="shortsDuration">
+                    <option value="15">15 seconds (TikTok)</option>
+                    <option value="30">30 seconds</option>
+                    <option value="60" selected>60 seconds (YouTube Shorts)</option>
+                    <option value="90">90 seconds</option>
+                </select>
+
+                <label>Content Focus:</label>
+                <select id="shortsContentFocus">
+                    <option value="highlights">Best Highlights Only</option>
+                    <option value="hooks">Attention-Grabbing Hooks</option>
+                    <option value="quotes">Key Quotes & Insights</option>
+                    <option value="questions">Questions & Cliffhangers</option>
+                    <option value="chronological">Chronological Clips</option>
+                </select>
+
+                <button class="btn btn-large" id="generateShortsBtn" disabled>
+                    🎬 Generate Viral Shorts
+                </button>
+            </div>
+
+            <div id="shortsResults" style="display: none;">
+                <h3 style="margin: 30px 0 20px 0; color: #ffd700;">Generated Shorts:</h3>
+                <div class="shorts-preview" id="shortsPreview"></div>
+            </div>
+        </div>
+
+        <!-- BRAND SETTINGS TAB -->
+        <div class="tab-content" id="settings">
+            <div class="grid">
+                <div class="card">
+                    <h3>🎨 Brand Colors</h3>
+                    <div class="color-picker-group">
+                        <div class="color-picker-item">
+                            <label>Primary Color</label>
+                            <input type="color" id="primaryColor" value="#6a0dad">
+                        </div>
+                        <div class="color-picker-item">
+                            <label>Accent Color</label>
+                            <input type="color" id="accentColor" value="#ffd700">
+                        </div>
+                        <div class="color-picker-item">
+                            <label>Text Color</label>
+                            <input type="color" id="textColor" value="#ffffff">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📝 Channel Information</h3>
+                    <label>Channel Name</label>
+                    <input type="text" id="channelName" placeholder="MagickLibrary">
+                    
+                    <label>Default Font</label>
+                    <select id="brandFont">
+                        <option value="Cinzel">Cinzel (Mystical)</option>
+                        <option value="Impact">Impact (Bold/Viral)</option>
+                        <option value="Montserrat">Montserrat (Modern)</option>
+                        <option value="Playfair Display">Playfair Display (Elegant)</option>
                     </select>
+
+                    <label>Tagline/Subtitle</label>
+                    <input type="text" id="tagline" placeholder="Exploring Literary Worlds">
                 </div>
 
-                <div class="control-group">
-                    <label>📐 Resolution</label>
-                    <select id="resolution">
-                        <option value="original">Original Size</option>
-                        <option value="1920x1080">1080p (1920x1080)</option>
-                        <option value="1280x720">720p (1280x720)</option>
-                        <option value="640x360">360p (640x360)</option>
-                        <option value="1080x1920">Vertical 9:16 (1080x1920)</option>
-                    </select>
+                <div class="card">
+                    <h3>🎙️ Audio Settings</h3>
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Noise Reduction</span>
+                            <span id="noiseReductionValue">70%</span>
+                        </div>
+                        <input type="range" id="noiseReduction" min="0" max="100" value="70">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Bass Boost</span>
+                            <span id="bassBoostValue">30%</span>
+                        </div>
+                        <input type="range" id="bassBoost" min="0" max="100" value="30">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Voice Clarity</span>
+                            <span id="voiceClarityValue">80%</span>
+                        </div>
+                        <input type="range" id="voiceClarity" min="0" max="100" value="80">
+                    </div>
+
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Compression (Loudness)</span>
+                            <span id="compressionValue">60%</span>
+                        </div>
+                        <input type="range" id="compression" min="0" max="100" value="60">
+                    </div>
                 </div>
 
-                <div class="control-group">
-                    <label>⚡ Speed</label>
-                    <input type="range" id="speed" min="0.25" max="4" step="0.25" value="1">
-                    <span class="range-value" id="speedValue">1.0x</span>
-                </div>
-
-                <div class="control-group">
-                    <label>🔊 Volume</label>
-                    <input type="range" id="volume" min="0" max="200" value="100">
-                    <span class="range-value" id="volumeValue">100%</span>
-                </div>
-
-                <div class="control-group">
-                    <label>🎨 Filter</label>
-                    <select id="filter">
-                        <option value="none">None</option>
-                        <option value="grayscale">Black & White</option>
-                        <option value="sepia">Sepia</option>
-                        <option value="invert">Invert</option>
-                        <option value="brightness">Brighten</option>
-                        <option value="contrast">High Contrast</option>
-                        <option value="saturate">Saturate</option>
-                        <option value="blur">Blur</option>
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <label>✂️ Trim Start (seconds)</label>
-                    <input type="number" id="trimStart" value="0" min="0" step="0.1">
-                </div>
-
-                <div class="control-group">
-                    <label>✂️ Trim End (seconds)</label>
-                    <input type="number" id="trimEnd" value="0" min="0" step="0.1">
-                </div>
-
-                <div class="control-group">
-                    <label>📝 Add Text Overlay</label>
-                    <input type="text" id="textOverlay" placeholder="Enter text (optional)">
+                <div class="card">
+                    <h3>🎬 Video Effects</h3>
+                    <div class="toggle">
+                        <input type="checkbox" id="addCinematicBars" checked>
+                        <label>Cinematic bars (letterbox)</label>
+                    </div>
+                    <div class="toggle">
+                        <input type="checkbox" id="addFilmGrain">
+                        <label>Film grain effect</label>
+                    </div>
+                    <div class="toggle">
+                        <input type="checkbox" id="addVignette" checked>
+                        <label>Vignette (dark corners)</label>
+                    </div>
+                    <div class="toggle">
+                        <input type="checkbox" id="autoColorGrade" checked>
+                        <label>Auto color grading</label>
+                    </div>
                 </div>
             </div>
 
-            <!-- Preview Section -->
-            <div class="preview-section">
-                <div class="preview-box">
-                    <h3>Original Video</h3>
-                    <video id="originalVideo" controls></video>
-                    <p style="margin-top: 10px; color: #666; font-size: 14px;" id="videoInfo"></p>
-                </div>
-                <div class="preview-box">
-                    <h3>Preview with Effects</h3>
-                    <video id="previewVideo" controls></video>
-                </div>
+            <button class="btn btn-large" id="saveBrandSettings">💾 Save All Settings</button>
+        </div>
+
+        <!-- ASSETS LIBRARY TAB -->
+        <div class="tab-content" id="assets">
+            <div class="card">
+                <h3>🎞️ Intro Videos</h3>
+                <input type="file" id="introInput" accept="video/*" multiple>
+                <div class="asset-gallery" id="introGallery"></div>
             </div>
 
-            <!-- Process Button -->
-            <button class="process-btn" id="processBtn">
-                🎬 Process & Download Video
-            </button>
+            <div class="card">
+                <h3>🎞️ Outro Videos</h3>
+                <input type="file" id="outroInput" accept="video/*" multiple>
+                <div class="asset-gallery" id="outroGallery"></div>
+            </div>
 
-            <div class="status" id="status"></div>
+            <div class="card">
+                <h3>🖼️ Overlay Images (Logos, Watermarks)</h3>
+                <input type="file" id="overlayInput" accept="image/*" multiple>
+                <div class="asset-gallery" id="overlayGallery"></div>
+            </div>
+
+            <div class="card">
+                <h3>🎵 Background Music</h3>
+                <input type="file" id="musicInput" accept="audio/*" multiple>
+                <div class="asset-gallery" id="musicGallery"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Load AI Processing Libraries -->
-    <script src="ai-processor.js"></script>
-    <script src="motion-graphics.js"></script>
-    
-    <script>
-        let videoFile = null;
-        let originalVideo = document.getElementById('originalVideo');
-        let previewVideo = document.getElementById('previewVideo');
-        const uploadZone = document.getElementById('uploadZone');
-        const fileInput = document.getElementById('fileInput');
-        const videoLoaded = document.getElementById('videoLoaded');
-        const processBtn = document.getElementById('processBtn');
-        const status = document.getElementById('status');
-        
-        // Initialize AI Processor
-        let aiProcessor = null;
-        let motionEngine = null;
-        let videoAnalysis = null;
-        
-        (async () => {
-            aiProcessor = new AIVideoProcessor();
-            await aiProcessor.initialize();
-            console.log('🚀 AI Features Ready!');
-        })();
-
-        // Upload handling
-        uploadZone.addEventListener('click', () => fileInput.click());
-        
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files[0]) {
-                loadVideo(e.target.files[0]);
-            }
-        });
-
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('dragover');
-        });
-
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
-        });
-
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            if (e.dataTransfer.files[0]) {
-                loadVideo(e.dataTransfer.files[0]);
-            }
-        });
-
-        function loadVideo(file) {
-            videoFile = file;
-            const url = URL.createObjectURL(file);
-            originalVideo.src = url;
-            previewVideo.src = url;
-            
-            uploadZone.style.display = 'none';
-            videoLoaded.style.display = 'block';
-
-            originalVideo.addEventListener('loadedmetadata', async () => {
-                const duration = originalVideo.duration.toFixed(2);
-                const size = (file.size / 1024 / 1024).toFixed(2);
-                document.getElementById('videoInfo').textContent = 
-                    `Duration: ${duration}s | Size: ${size} MB | Format: ${file.type}`;
-                document.getElementById('trimEnd').value = duration;
-                document.getElementById('trimEnd').max = duration;
-                document.getElementById('trimStart').max = duration;
-                
-                // AUTO AI ANALYSIS
-                status.className = 'status info';
-                status.style.display = 'block';
-                status.textContent = '🤖 AI analyzing your video...';
-                
-                try {
-                    videoAnalysis = await aiProcessor.analyzeVideo(originalVideo);
-                    const autoPacing = await aiProcessor.generateAutoPacing(originalVideo, 'balanced');
-                    const suggestions = aiProcessor.generateTitleSuggestions(file.name, 'mystical');
-                    
-                    status.className = 'status success';
-                    status.textContent = `✅ AI Analysis Complete! Found ${videoAnalysis.scenes.length} scenes, ${videoAnalysis.suggestedCuts.length} suggested cuts. Ready to process!`;
-                    
-                    console.log('📊 Analysis:', videoAnalysis);
-                    console.log('💡 Title suggestions:', suggestions);
-                } catch (err) {
-                    console.error('AI Analysis error:', err);
-                    status.className = 'status info';
-                    status.textContent = '⚠️ AI analysis partial - will use manual settings';
-                }
-            });
-
-            updatePreview();
-        }
-
-        // Live preview updates
-        document.getElementById('speed').addEventListener('input', (e) => {
-            document.getElementById('speedValue').textContent = e.target.value + 'x';
-            previewVideo.playbackRate = parseFloat(e.target.value);
-        });
-
-        document.getElementById('volume').addEventListener('input', (e) => {
-            document.getElementById('volumeValue').textContent = e.target.value + '%';
-            previewVideo.volume = e.target.value / 100;
-        });
-
-        document.getElementById('filter').addEventListener('change', updatePreview);
-
-        function updatePreview() {
-            const filter = document.getElementById('filter').value;
-            let filterCSS = '';
-            
-            switch(filter) {
-                case 'grayscale': filterCSS = 'grayscale(100%)'; break;
-                case 'sepia': filterCSS = 'sepia(100%)'; break;
-                case 'invert': filterCSS = 'invert(100%)'; break;
-                case 'brightness': filterCSS = 'brightness(150%)'; break;
-                case 'contrast': filterCSS = 'contrast(150%)'; break;
-                case 'saturate': filterCSS = 'saturate(200%)'; break;
-                case 'blur': filterCSS = 'blur(3px)'; break;
-            }
-            
-            previewVideo.style.filter = filterCSS;
-        }
-
-        // Process video
-        processBtn.addEventListener('click', async () => {
-            processBtn.disabled = true;
-            processBtn.textContent = '⏳ Processing...';
-            status.className = 'status info';
-            status.style.display = 'block';
-            status.textContent = 'Processing video locally in your browser...';
-
-            try {
-                await processVideo();
-                status.className = 'status success';
-                status.textContent = '✅ Video processed successfully!';
-            } catch (error) {
-                status.className = 'status error';
-                status.textContent = '❌ Error: ' + error.message;
-            } finally {
-                processBtn.disabled = false;
-                processBtn.textContent = '🎬 Process & Download Video';
-            }
-        });
-
-        async function processVideo() {
-            return new Promise(async (resolve, reject) => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const video = document.createElement('video');
-                
-                video.src = URL.createObjectURL(videoFile);
-                
-                video.addEventListener('loadedmetadata', async () => {
-                    const resolution = document.getElementById('resolution').value;
-                    
-                    if (resolution === 'original') {
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                    } else {
-                        const [w, h] = resolution.split('x').map(Number);
-                        canvas.width = w;
-                        canvas.height = h;
-                    }
-                    
-                    // Initialize motion graphics engine
-                    motionEngine = new MotionGraphicsEngine(canvas);
-
-                    const stream = canvas.captureStream(30);
-                    const mediaRecorder = new MediaRecorder(stream, {
-                        mimeType: 'video/webm;codecs=vp9',
-                        videoBitsPerSecond: 5000000
-                    });
-
-                    const chunks = [];
-                    mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-                    mediaRecorder.onstop = () => {
-                        const blob = new Blob(chunks, { type: 'video/webm' });
-                        downloadVideo(blob);
-                        resolve();
-                    };
-
-                    // Apply settings
-                    const speed = parseFloat(document.getElementById('speed').value);
-                    const trimStart = parseFloat(document.getElementById('trimStart').value);
-                    const trimEnd = parseFloat(document.getElementById('trimEnd').value);
-                    const filter = document.getElementById('filter').value;
-                    const textOverlay = document.getElementById('textOverlay').value;
-
-                    // Generate motion graphics if AI analysis available
-                    let motionGraphics = [];
-                    if (videoAnalysis) {
-                        motionGraphics = aiProcessor.generateMotionGraphics(videoAnalysis, {
-                            mode: 'mystical',
-                            style: 'cinematic',
-                            title: textOverlay || 'MagickLibrary',
-                            quotes: []
-                        });
-                    }
-
-                    video.currentTime = trimStart;
-                    video.playbackRate = speed;
-
-                    let startTime = performance.now();
-                    let lastTime = startTime;
-                    mediaRecorder.start();
-
-                    function drawFrame() {
-                        if (video.currentTime >= trimEnd) {
-                            mediaRecorder.stop();
-                            return;
-                        }
-
-                        const currentTime = performance.now();
-                        const deltaTime = (currentTime - lastTime) / 1000;
-                        lastTime = currentTime;
-                        const videoProgress = (video.currentTime - trimStart) / (trimEnd - trimStart);
-
-                        ctx.save();
-                        
-                        // Apply filter
-                        if (filter !== 'none') {
-                            ctx.filter = getFilterStyle(filter);
-                        }
-
-                        // Draw main video
-                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        ctx.filter = 'none';
-                        
-                        // Apply motion graphics overlays
-                        motionGraphics.forEach(graphic => {
-                            const relativeTime = video.currentTime - graphic.time;
-                            if (relativeTime >= 0 && relativeTime <= graphic.duration) {
-                                const progress = relativeTime / graphic.duration;
-                                
-                                switch(graphic.type) {
-                                    case 'title_card':
-                                        motionEngine.renderTitleCard(graphic.text, graphic.style, graphic.animation, progress);
-                                        break;
-                                    case 'chapter_marker':
-                                        motionEngine.renderChapterMarker(graphic.text, graphic.style, graphic.animation, progress);
-                                        break;
-                                    case 'quote_overlay':
-                                        motionEngine.renderQuote(graphic.text, graphic.style, graphic.animation, progress);
-                                        break;
-                                    case 'particle_effect':
-                                        motionEngine.renderParticles(graphic.effect, graphic.density, graphic.color, deltaTime);
-                                        break;
-                                }
-                            }
-                        });
-                        
-                        // Add cinematic bars
-                        motionEngine.renderCinematicBars(60, 0.9);
-                        
-                        // Add text overlay if specified
-                        if (textOverlay && !motionGraphics.some(g => g.type === 'title_card')) {
-                            ctx.font = 'bold 40px Arial';
-                            ctx.fillStyle = 'white';
-                            ctx.strokeStyle = 'black';
-                            ctx.lineWidth = 3;
-                            ctx.textAlign = 'center';
-                            ctx.strokeText(textOverlay, canvas.width / 2, canvas.height - 80);
-                            ctx.fillText(textOverlay, canvas.width / 2, canvas.height - 80);
-                        }
-                        
-                        // Apply film grain for cinematic look
-                        motionEngine.applyFilmGrain(0.05);
-                        
-                        // Apply vignette
-                        motionEngine.applyVignette(0.3);
-
-                        ctx.restore();
-
-                        // Update progress
-                        status.textContent = `🎬 Processing: ${Math.round(videoProgress * 100)}% complete`;
-
-                        if (video.paused || video.ended) {
-                            mediaRecorder.stop();
-                        } else {
-                            requestAnimationFrame(drawFrame);
-                        }
-                    }
-
-                    video.play();
-                    drawFrame();
-                });
-            });
-        }
-
-        function getFilterStyle(filter) {
-            switch(filter) {
-                case 'grayscale': return 'grayscale(100%)';
-                case 'sepia': return 'sepia(100%)';
-                case 'invert': return 'invert(100%)';
-                case 'brightness': return 'brightness(150%)';
-                case 'contrast': return 'contrast(150%)';
-                case 'saturate': return 'saturate(200%)';
-                case 'blur': return 'blur(3px)';
-                default: return 'none';
-            }
-        }
-
-        function downloadVideo(blob) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `magicklibrary_edited_${Date.now()}.webm`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-    </script>
+    <script src="audio-processor.js"></script>
+    <script src="shorts-generator.js"></script>
+    <script src="professional-effects.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
